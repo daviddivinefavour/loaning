@@ -19,10 +19,18 @@ const findOne = (model) => (field) => {
     .catch((err) => err);
 }
 
-const update = (modal) => (field, data) => knex(modal).where(field).update(data).then((data)=>{return data}).catch((err)=>{console.log(err)});
+const findAndUpdate = (model) => (field, data) => {
+  return knex(model)
+    .where(field)
+    .update(data)
+    .then( (id) => knex(model)
+      .where({id})
+      .then((transaction) => transaction)).catch((err)=>err)
+    .catch((err) => err);
+}
 
 module.exports = {
   store,
   findOne,
-  update
+  findAndUpdate
 }
