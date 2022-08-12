@@ -1,18 +1,23 @@
-const { store, findOne } = require('../utils/execute');
+const { store, findOne, findAndUpdate } = require('../utils/execute');
 const { encrypt, decrypt } = require('../utils/encoder');
 const { registerValidator, loginValidator } = require('../validators/authValidator');
-const { setAuthUser } = require('../utils/token');
+const { generateToken } = require('../utils/token');
 
 exports.register = async (req, res) => {
      const validator = await registerValidator.validate(req.body);
      validator.password = encrypt(validator.password);
      const user = await store('users')(validator);
      if(!user.code){
-          setAuthUser(req, user[0]);
+          const tokenData ={
+               token: generateToken(),
+               email: user[0].email
+          }
+          const token = await store('tokens')(tokenData);
           return res.status(201).json({
                status: 201,
                message: 'User registered successfully',
-               user: user
+               user: user,
+               token
           });
      }
      return res.status(500).json({
@@ -33,12 +38,11 @@ exports.login = async (req, res)=>{
      }
      const passwordIsCorrect = decrypt(validator.password, user[0].password);
      if( user && passwordIsCorrect){
-          setAuthUser(req, user[0]);
+          const token = await findAndUpdate('tokens')({email}, {token: generateToken()});
           return res.status(200).json({
                status: 200,
                message: 'User logged in successfully',
-               token: req.headers.token,
-               data: user
+               token: token[0].token
           })
      }
      return res.status(403).json({
@@ -47,6 +51,18 @@ exports.login = async (req, res)=>{
      })
 }
 
-exports.update = async (req, res)=>{
-     
+exports.setPin = async (req, res)=>{
+     const {pin} = req.body;
+     const {email} = req.user;
+     const user = await findAndUpdate('users')({email}, {pin});
+     if(user.length < 1 ){
+          return res.status(500).json({
+               status: 500,
+               message: 'unexpected error'
+          });
+     }
+     return res.status(200).json({
+          status: 200,
+          message: 'Pin set successfully',
+     })
 }

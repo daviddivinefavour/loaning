@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
+const { authUser } = require('../middlewares/getAuthUser');
 
 // create a new user
 // fund account
@@ -8,5 +9,6 @@ const userController = require('../controllers/userController');
 
 router.post('/register', userController.register);
 router.post('/login', userController.login);
+router.put('/home/pin/set',authUser, userController.setPin);
 
 module.exports = router;
