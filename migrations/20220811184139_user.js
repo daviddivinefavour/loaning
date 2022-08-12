@@ -11,6 +11,7 @@ exports.up = function(knex) {
          table.string('email', 255).unique().notNullable();
          table.string('password', 255).notNullable();
          table.double('wallet', 255).defaultTo(0);
+         table.integer('pin')
      })
 };
 
