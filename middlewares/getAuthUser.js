@@ -1,11 +1,21 @@
-exports.authUser = (req,res,next)=>{
-     const {token, email} = req.headers.tokenize;
-     const isAuthenticated =  decrypt(email,token);
-     if(isAuthenticated){
-          next();
+const { findOne } = require("../utils/execute");
+
+exports.authUser = async (req,res,next)=>{
+     const bearerToken = req.headers.authorization;
+     if(!bearerToken){
+          return res.status(401).json({
+               status: 401,
+               message: 'Token is required for authentication'
+          });
      }
-     return res.status(403).json({
-          status: 403,
-          message: 'Unathorized user'
+     const token = bearerToken.split(' ')[1]
+     const isAuthenticated = await findOne('tokens')({token});
+     if(isAuthenticated){
+          req.user=isAuthenticated[0];
+          return next();
+     }
+     return res.status(400).json({
+          status: 400,
+          message: 'Invalid token'
      });
 }
