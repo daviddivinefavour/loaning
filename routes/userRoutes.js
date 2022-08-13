@@ -12,6 +12,6 @@ router.post('/login', userController.login);
 router.put('/home/pin/set',authUser, userController.setPin);
 router.patch('/home/account/funding',authUser, userController.fundingAccount);
 router.patch('/home/account/transfer',authUser, userController.transferFunds);
-
+router.patch('/home/account/withdraw',authUser, userController.withdrawFunds);
 
 module.exports = router;

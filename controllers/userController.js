@@ -140,3 +140,35 @@ exports.transferFunds = async (req,res)=>{
           balance: newBalance[0].wallet
      })
 }
+
+exports.withdrawFunds = async (req,res)=>{
+     const {amount,pin} = req.body;
+     const {email} = req.user;
+     const user = await findOne('users')({email});
+     const checker = checkEmptyQueryResponse(user,500,'User not found');
+     if(checker){
+          return res.status(500).json({...checker})
+     }
+     if(!user[0].pin){
+          return res.status(400).json({
+               status: 400,
+               message: 'Pin not set'
+          });
+     }
+     const correctPin = comparePin(pin,user[0].pin)
+     if(!correctPin){
+          return res.status(405).json({
+               status: 405,
+               message: "Pin is incorrect"
+          });
+     }
+     const wallet = user[0].wallet - amount;
+     await findAndUpdate('users')({email}, {wallet});
+     const newBalance = await findOne('users')({email});
+
+     return res.status(200).json({
+          status: 200,
+          message: `Withdrawal of ${amount} is successful`,
+          wallet: newBalance[0].wallet
+     })
+}
