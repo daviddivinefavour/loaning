@@ -1,0 +1,1 @@
+module.exports = (pin, against) => !!(pin === against);
