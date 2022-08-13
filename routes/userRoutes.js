@@ -10,5 +10,6 @@ const { authUser } = require('../middlewares/getAuthUser');
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.put('/home/pin/set',authUser, userController.setPin);
+router.put('/home/account/funding',authUser, userController.fundingAccount);
 
 module.exports = router;

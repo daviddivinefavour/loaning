@@ -66,3 +66,38 @@ exports.setPin = async (req, res)=>{
           message: 'Pin set successfully',
      })
 }
+
+exports.fundingAccount = async (req, res)=>{
+     const {amount,pin} = req.body;
+     const {email} = req.user;
+     const user = await findOne('users')({email});
+     if(!user[0].pin){
+          return res.status(400).json({
+               status: 400,
+               message: 'Pin not set'
+          });
+     }
+
+     if(!pin === user[0].pin){
+          return res.status(405).json({
+               status: 405,
+               message: "Pin is incorrect"
+          });
+     }
+     if(user.length < 1 ){
+          return res.status(500).json({
+               status: 500,
+               message: 'unexpected error'
+          });
+     }
+
+     const wallet = user[0].wallet + amount;
+     await findAndUpdate('users')({email}, {wallet});
+     const newBalance = await findOne('users')({email});
+
+     return res.status(200).json({
+          status: 200,
+          message: 'Funding successful',
+          wallet: newBalance[0].wallet
+     })
+}
