@@ -2,7 +2,14 @@ const { store, findAndUpdate, findOne } = require("../utils/execute");
 const returner = require("../utils/returner");
 const { createPinValidator } = require("../validators/transactionValidators");
 
-const checkPin = (data, pin) => data.pin === pin;
+const checkPin = (data, pin) => {
+  isCorrectPin = data.pin === pin;
+  if (!isCorrectPin) {
+    const invalidPin = returner('error')(405)('Incorrect pin')('Method not allowed')();
+    return invalidPin
+  }
+  false
+}
 
 const setTransactionPinService = async (req,data,control)=>{
   const validator = await createPinValidator.validate(data)
@@ -20,13 +27,9 @@ const setTransactionPinService = async (req,data,control)=>{
 
 }
 
-const makeTransactionService = async (type,amount,pin,user)=>{
+const makeTransactionService = async (type,amount,user)=>{
   if (type !== "credit" && type !== "debit") {
     return returner('error')(422)('Transaction Type not set')('Unprocessable Entity')()
-  }
-  const isCorrectPin = checkPin(user, pin);
-  if (!isCorrectPin) {
-    return returner('error')(405)('Incorrect pin')('Method not allowed')();
   }
   const details = {
     type: type,
@@ -55,10 +58,32 @@ const makeTransactionService = async (type,amount,pin,user)=>{
   return returner('success')(200)(`${type} of ${amount} successful`)('Ok')(completedTransaction)
 };
 
-const makeTransfer = (data) => {};
+const makeTransferService = async (amount,user,recipientEmail) => {
+  const recipient = await findOne('users')({email:recipientEmail})
+  if(recipient.length < 1){
+    return returner('error')(422)('Recipient not found')('Unprocessed entity')()
+  }
+  const reciever = {...recipient[0]};
+  const data = {
+    status: 'complete',
+    from: `${user.firstname} ${user.lastname}`,
+    to: `${reciever.firstname} ${reciever.lastname}`,
+    amount,
+  }
+  const debitUser = await makeTransactionService('debit',amount,user)
+  if(debitUser.control === 'success'){
+      const creditUser = await makeTransactionService('credit',amount,reciever)
+      if(creditUser.control === 'success'){
+        return returner('success')(200)(`Transfer successful`)('OK')(data)
+      }
+      return creditUser;
+  }
+  return debitUser;
+};
 
 module.exports = {
   makeTransactionService,
-  makeTransfer,
-  setTransactionPinService
+  makeTransferService,
+  setTransactionPinService,
+  checkPin
 };
