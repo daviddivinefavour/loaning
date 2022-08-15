@@ -1,8 +1,11 @@
 const { makeTransactionService } = require("../services/transactionService");
 const { respond } = require("../utils/respond");
+const { getAuthenticatedUser } = require("../middlewares/getAuthUser");
 
 exports.fundingAccount = async (req, res)=>{
-  const serviceReply = await makeTransactionService(req,req.body,'credit')
+  const user = getAuthenticatedUser(req);
+  const {amount,pin} = req.body;
+  const serviceReply = await makeTransactionService('credit',amount,pin,user)
   const {response,data}=serviceReply;
   return respond(response.status)(response.message)(res)(data); 
 }
@@ -54,7 +57,9 @@ exports.transferFunds = async (req,res)=>{
 }
 
 exports.withdrawFunds = async (req,res)=>{
-  const serviceReply = await makeTransactionService(req,req.body,'debit')
+  const user = getAuthenticatedUser(req);
+  const {amount,pin} = req.body;
+  const serviceReply = await makeTransactionService('debit',amount,pin,user)
   const {response,data}=serviceReply;
   return respond(response.status)(response.message)(res)(data); 
 }

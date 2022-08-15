@@ -1,4 +1,3 @@
-const { getAuthenticatedUser } = require("../middlewares/getAuthUser");
 const { store, findAndUpdate, findOne } = require("../utils/execute");
 const returner = require("../utils/returner");
 const { createPinValidator } = require("../validators/transactionValidators");
@@ -21,9 +20,7 @@ const setTransactionPinService = async (req,data,control)=>{
 
 }
 
-const makeTransactionService = async (req,data,type) => {
-  const user = getAuthenticatedUser(req);
-  const { amount,  pin } = data;
+const makeTransactionService = async (type,amount,pin,user)=>{
   if (type !== "credit" && type !== "debit") {
     return returner('error')(422)('Transaction Type not set')('Unprocessable Entity')()
   }
