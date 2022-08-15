@@ -19,6 +19,13 @@ const findOne = (model) => (field) => {
     .catch((err) => err);
 }
 
+const isDuplicate = (model)=>(field)=>{
+  return knex(model)
+    .where(field)
+    .then((data) => data.length < 1? false:true)
+    .catch((err) => err);
+}
+
 const findAndUpdate = (model) => (field, data) => {
   return knex(model)
     .where(field)
@@ -32,5 +39,6 @@ const findAndUpdate = (model) => (field, data) => {
 module.exports = {
   store,
   findOne,
-  findAndUpdate
+  findAndUpdate,
+  isDuplicate
 }
