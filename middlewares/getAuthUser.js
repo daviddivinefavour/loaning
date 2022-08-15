@@ -10,8 +10,11 @@ exports.authUser = async (req,res,next)=>{
      }
      const token = bearerToken.split(' ')[1]
      const isAuthenticated = await findOne('tokens')({token});
-     if(isAuthenticated){
-          req.user=isAuthenticated[0];
+     if(!isAuthenticated.length < 1){
+          const user = await findOne('users')({email: isAuthenticated[0].email})
+          const details = {...user[0]}
+          delete details.password;
+          req.user = details
           return next();
      }
      return res.status(400).json({
@@ -19,3 +22,5 @@ exports.authUser = async (req,res,next)=>{
           message: 'Invalid token'
      });
 }
+
+exports.getAuthenticatedUser = (req)=> req.user

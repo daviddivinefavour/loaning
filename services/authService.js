@@ -8,7 +8,6 @@ const generateToken = async (req,user)=> {
           email: user[0].email,
           token: encrypt(`${user[0].password}+${new Date().getMilliseconds()}`)
      }
-     req.user = tokenData;
      const checkForToken = await findOne('tokens')({email:user[0].email});
      if(checkForToken.length < 1){
           const savetoken = await store('tokens')(tokenData);
@@ -33,6 +32,7 @@ const registerService = async (req,data) => {
      }
      const token = await generateToken(req,user);
      const details = {...user[0]}
+     delete details.password;
      details.token=token;
      return returner('success')(201)('New user created')('Created')(details);
 }
@@ -48,6 +48,7 @@ const loginService = async (req,data) => {
      if( user && passwordIsCorrect){
           const details = {...user[0]}
           details.token = await generateToken(req,user);
+          delete details.password;
           return returner('success')(200)('User logged in successfully')('OK')(details)
      }
      return returner('error')(422)('User not found')('Unprocessable entity')()
