@@ -47,18 +47,14 @@ const makeTransactionService = async (req,data,type) => {
   if(type==='debit' && user.wallet<amount){
     return returner('error')(400)('Insufficient balance')('Bad request')()
   }
-  const newTransaction = await store("transactions")(details);
-  if (newTransaction.length < 1) {
-    return returner('error')(400)('Failed to log transaction')('Bad request')()
-  }
   const transactionResponse = await findAndUpdate("users")({ email:user.email },{wallet: balance});
   if (transactionResponse.length < 1) {
-    return returner('error')(500)('Failed to credit user account')('Internal server error')()
+    return returner('error')(500)(`Failed to ${type} user account`)('Internal server error')()
   }
   const completedTransaction = {...transactionResponse[0]}
   delete completedTransaction.pin
   delete completedTransaction.password
-
+  await store("transactions")(details);
   return returner('success')(200)(`${type} of ${amount} successful`)('Ok')(completedTransaction)
 };
 
