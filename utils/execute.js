@@ -15,14 +15,14 @@ const store = (model) => (data) => {
 const findOne = (model) => (field) => { 
   return knex(model)
     .where(field)
-    .then((data) =>  data)
+    .then((data) =>  data[0])
     .catch((err) => err);
 }
 
 const isDuplicate = (model)=>(field)=>{
   return knex(model)
     .where(field)
-    .then((data) => data.length < 1? false:true)
+    .then((data) => data[0] ? true: false)
     .catch((err) => err);
 }
 
@@ -30,9 +30,6 @@ const findAndUpdate = (model) => (field, data) => {
   return knex(model)
     .where(field)
     .update(data)
-    .then( (id) => knex(model)
-      .where({id})
-      .then((transaction) => transaction)).catch((err)=>err)
     .catch((err) => err);
 }
 

@@ -1,53 +1,50 @@
 const { store, findOne, findAndUpdate,isDuplicate } = require('../utils/execute');
 const { encrypt, decrypt } = require('../utils/encoder');
-const { registerValidator, loginValidator } = require('../validators/authValidator');
 const returner = require('../utils/returner');
 
-const generateToken = async (req,user)=> {
+const generateToken = async (user)=> {
      const tokenData = {
-          email: user[0].email,
-          token: encrypt(`${user[0].password}+${new Date().getMilliseconds()}`)
+          email: user.email,
+          token: encrypt(`${user.password}+${new Date().getMilliseconds()}`)
      }
-     const checkForToken = await findOne('tokens')({email:user[0].email});
-     if(checkForToken.length < 1){
+     const checkForToken = await findOne('tokens')({email:user.email});
+     if(!checkForToken){
           const savetoken = await store('tokens')(tokenData);
-          return savetoken[0].token;
+          return savetoken.token;
      }
-    await findAndUpdate('tokens')({email: user[0].email}, {token: tokenData.token});
-    const newToken =await findOne('tokens')({email:user[0].email});
-     return newToken[0].token;
+    await findAndUpdate('tokens')({email: user.email}, {token: tokenData.token});
+    const newToken =await findOne('tokens')({email:user.email});
+     return newToken.token;
 }
 
-const registerService = async (req,data) => {
-     const validator = await registerValidator.validate(data);
-     const {email} = validator;
-     validator.password = encrypt(validator.password);
+const registerService = async (data) => {
+     const {email} = data;
+     data.password = encrypt(data.password);
      const isEmailTaken = await isDuplicate('users')({email}) ;
      if(isEmailTaken){
           return returner('error')(422)('Email already taken')('Unprocessable Entity')()
      }
-     const user = await store('users')(validator);
-     if(user.length<1){
+     const user = await store('users')(data);
+     if(!user){
           return returner('error')(501)('Oops an error occurred')('Internal Server Entry')()
      }
-     const token = await generateToken(req,user);
-     const details = {...user[0]}
+     const token = await generateToken(user);
+     const details = {...user}
      delete details.password;
      details.token=token;
      return returner('success')(201)('New user created')('Created')(details);
 }
 
-const loginService = async (req,data) => {
-     const validator = await loginValidator.validate(data);
-     const {email} = validator;
+const loginService = async (data) => {
+     const {email} = data;
      const user = await findOne('users')({email});
-     if(user.length < 1){
+     if(!user){
           return returner('error')(400)('Invalid Login Details')('Bad Request')()
      }
-     const passwordIsCorrect = decrypt(validator.password, user[0].password);
+     const passwordIsCorrect = decrypt(data.password, user.password);
      if( user && passwordIsCorrect){
-          const details = {...user[0]}
-          details.token = await generateToken(req,user);
+          const details = {...user}
+          details.token = await generateToken(user);
           delete details.password;
           return returner('success')(200)('User logged in successfully')('OK')(details)
      }

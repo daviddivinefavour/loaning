@@ -1,14 +1,10 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
+const { loginChecker,createChecker,createPinChecker} = require('../middlewares/check');
 const { authUser } = require('../middlewares/getAuthUser');
 
-// create a new user
-// fund account
-// transfer funds to another user
-// withdraw funds from account
-
-router.post('/register', userController.register);
-router.post('/login', userController.login);
-router.put('/home/pin/set',authUser, userController.setPin);
+router.post('/register',createChecker, userController.register);
+router.post('/login',loginChecker, userController.login);
+router.put('/home/pin/set',createPinChecker,authUser, userController.setPin);
 
 module.exports = router;

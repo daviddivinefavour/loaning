@@ -10,11 +10,10 @@ exports.authUser = async (req,res,next)=>{
      }
      const token = bearerToken.split(' ')[1]
      const isAuthenticated = await findOne('tokens')({token});
-     if(!isAuthenticated.length < 1){
-          const user = await findOne('users')({email: isAuthenticated[0].email})
-          const details = {...user[0]}
-          delete details.password;
-          req.user = details
+     if(isAuthenticated){
+          const user = await findOne('users')({email: isAuthenticated.email})
+          delete user.password;
+          req.user = user
           return next();
      }
      return res.status(400).json({
