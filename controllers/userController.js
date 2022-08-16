@@ -19,7 +19,8 @@ exports.login = async (req, res)=>{
 }
 
 exports.setPin = async (req, res)=>{
-     const serviceReply = await setTransactionPinService(req,req.body,'create');
+     const {pin} = req.body;
+     const serviceReply = await setTransactionPinService(req,pin,'create');
      const {response}=serviceReply;
      return respond(response.status)(response.message)(res)(); 
 }

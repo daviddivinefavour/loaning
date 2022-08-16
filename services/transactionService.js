@@ -19,10 +19,9 @@ const setTransactionPinService = async (req,data,control)=>{
   }
   await findAndUpdate('users')({email}, {pin});
   if(control==='update'){
-    return returner('success')(200)('Pin Updated successfully')('OK')(user[0])
+    return returner('success')(200)('Pin Updated successfully')('OK')(user)
   }
-  return returner('success')(200)('Pin set Successfully')('OK')(user[0])
-
+  return returner('success')(200)('Pin set Successfully')('OK')(user)
 }
 
 const makeTransactionService = async (type,amount,user)=>{
