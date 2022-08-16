@@ -7,7 +7,7 @@ const store = (model) => (data) => {
   .insert(data)
   .then( (id) => knex(model)
         .where({id})
-        .then((transaction) => transaction))
+        .then((transaction) => transaction[0]))
   .catch((err)=>err);
 }
 
