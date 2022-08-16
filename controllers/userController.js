@@ -3,7 +3,9 @@ const { respond } = require('../utils/respond');
 const { setTransactionPinService } = require('../services/transactionService');
 
 exports.register = async (req,res) => {
-     const serviceReply = await registerService(req.body);
+     const body = {...(req.body)};
+     delete body.confirmPassword;
+     const serviceReply = await registerService(body);
      const {response,data}=serviceReply;
      req.user = data;
      return respond(response.status)(response.message)(res)(data); 

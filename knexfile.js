@@ -13,4 +13,12 @@ module.exports = {
       database: 'lendsqr',
     }
   },
+  test: {
+    client: 'mysql2',
+    connection: {
+      user: 'root',
+      password: 'password',
+      database: 'lendsqr_test',
+    }
+  },
 };
