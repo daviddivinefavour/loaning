@@ -53,5 +53,6 @@ const loginService = async (data) => {
 
 module.exports = {
      registerService,
-     loginService
+     loginService,
+     generateToken
 }
