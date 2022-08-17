@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "dev": "nodemon server.js",
-    "start": "node server.js",
+    "start": "NODE_ENV=development & node server.js",
     "migrate:latest": "npx knex migrate:latest",
     "migrate:rollback": "npx knex migrate:rollback",
     "migrate:up": "npx knex migrate:up",

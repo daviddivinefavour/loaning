@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app')
+const app = require('../setup')
 
 const reqBody ={
      "email": "Sarah@email.com",
