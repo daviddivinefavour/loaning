@@ -10,8 +10,7 @@ const checkPin = (data, pin) => {
   false
 }
 
-const setTransactionPinService = async (req,data,control)=>{
-  const {pin} = data;
+const setTransactionPinService = async (req,pin,control)=>{
   const {email} = req.user;
   const user = await findOne('users')({email});
   if(!user){

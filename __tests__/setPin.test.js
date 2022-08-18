@@ -21,7 +21,6 @@ describe('Set Transaction Pin', ()=> {
           .post("/api/v1/home/pin/set")
           .send(reqBody)
           .set('Authorization', `Bearer ${token}`)
-          console.log(response.body.message);
           expect(response.status).toBe(200);
           expect(response.body.message).toMatch('Pin set Successfully');
      });
