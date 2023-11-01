@@ -1,4 +1,4 @@
-# inventoryManager
+# Loaning
   A simulation of how the backend service for loaning systems work.
 
 
